@@ -20,12 +20,31 @@ svg {
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  font-family: Georgia, "Times New Roman", Times, serif;
   line-height: 1.5;
+  font-size: 18px;
   -webkit-font-smoothing: antialiased;
   max-width: 1000px;
   padding: 2em;
   margin: auto;
+  background: linear-gradient(
+    120deg,
+    #f7d9b9,
+    #f3b6c2,
+    #f7e1c8
+  );
+}
+
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 h1 {
