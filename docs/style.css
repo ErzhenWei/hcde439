@@ -90,3 +90,42 @@ h2 {
 .assignment p {
   margin-top: 0.5em;
 }
+
+/* Two-column content */
+.content-row {
+  display: flex;
+  gap: 3em;
+  align-items: flex-start;
+}
+
+.content-block {
+  width: 50%;
+}
+
+.content-block h2 {
+  margin-bottom: 0.5em;
+}
+
+.content-block img {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Full-width block under the two columns */
+.full-width-block {
+  margin-top: 4em;
+}
+
+.full-width-block img {
+  width: 60%;
+  max-width: 600px;
+  margin: 0;
+  display: block;
+}
+
+/* make the code look like a code snippet */
+pre {
+  background: #f4f4f4;
+  font-size: 0.8em;
+}
