@@ -4,15 +4,287 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
 
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
+    <title>Erzhen's HCDE 439 Physical Computing Page!</title>
 
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <h1>Example Student's Assignment 2!</h1>
+    <h1>Erzhen's Assignment 2!</h1>
     <div class="header">
-      <img src="red-panda.jpg" />
-      <p>Here is all the documentation for assignment 2!</p>
+      <p>This is my work for a toy company to make a prototype for a new light-up toy.
+        In the prototype, I used 3 LEDs (with 1 one of them fades) and a toggle button;
+        In the code, I used sevearal functions, including 'for-loop,' 'digitalWrite(),'
+        'digitalRead(),' and 'analogWrite().'
+      </p>
     </div>
+
+    <div class="content-row">
+      <!-- Left column -->
+      <div class="content-block">
+        <h2>Schematic</h2>
+        <h3>Toggle Button Schematic</h3>
+        <img src="Toggle Button Schematic.jpg" alt="Toggle Button Schematic" />
+        <p class="caption">
+          This schematic shows the wiring for four LEDs connected to the Arduino.
+          To ensure each of 4 LEDs be able to blink independently, I used parallel circuit.
+        </p>
+      </div>
+  
+      <!-- Middle column -->
+      <div class="content-block">
+        <h3>Fading LED Schematic</h3>
+        <img src="Fading LED Schematic.jpg" alt="Fading LED Schematic" />
+        <p class="caption">
+          With the recommended current of 40 mA for all four colors of LEDs,
+          I calculated the minimum resistance needed, which is 250 Ohm.
+          To keep the clarity of the circuit, I used the 330 Ohm's resistants
+          for each parallel branch.
+        </p>
+      </div>
+
+      <!-- Right column -->
+      <div class="content-block">
+        <h3>Normal Blinking LED Schematic</h3>
+        <img src="Normal Blinking LED Schematic.jpg" alt="Normal Blinking LED Schematic" />
+        <p class="caption">
+          With the recommended current of 40 mA for all four colors of LEDs,
+          I calculated the minimum resistance needed, which is 250 Ohm.
+          To keep the clarity of the circuit, I used the 330 Ohm's resistants
+          for each parallel branch.
+        </p>
+      </div>
+    </div>
+
+  <div class="full-width-block">
+    <h2>Circuit</h2>
+    <img src="circuit_A2_1.jpg" alt="Final breadboard circuit" />
+    <img src="circuit_A2_2.jpg"/>
+    <p class="caption">
+      These images shows the completed breadboard circuit with all three LEDs wired
+      according to the schematic and resistor calculations.
+    </p>
+  </div>
+
+  <div class="full-width-block">
+    <h2>Firmware</h2>
+  
+    <pre><code>
+// Pin definitions for the PUSHBUTTON
+// the number of the LED pin
+const int ledPin = 13;
+// the number of the pushbutton pin
+const int buttonPin = 2;
+
+// Pin definitions for the FADING LED (PWM pins)
+// Red LED pin
+const int redPin = 9;
+// Green LED pin
+const int greenPin = 10;
+// Blue LED pin
+const int bluePin = 11;
+
+// Assign the normal LED to its digital pin
+int LedNormal = 8;
+
+// Variables (for PUSHBUTTON) will change:
+// variable for reading the pushbutton status
+int buttonState = 0;
+// Previous button state
+int lastButtonState = 0;
+// Current LED state
+int ledState = LOW;
+
+// Variables for Red LED
+// Current brightness
+int brightness = 0;
+// the changing brightness each step
+int fadeAmount = 5;
+
+// Variables for Green LED
+// Current brightness
+int brightness1 = 0;
+// the changing brightness each step
+int fadeAmount1 = 10;
+
+// Variables for blinking LED
+unsigned long previousMillis = 0;
+// interval for blinking (1 second)
+const long interval = 1000;
+// current state of blinking LED
+int blinkState = LOW;
+
+void setup() {
+  // for PUSHBUTTON
+  // Initialize the LED pin as an output
+  pinMode(ledPin, OUTPUT);
+  // Initialize the pushbutton pin as an input
+  pinMode(buttonPin, INPUT);
+  
+  // for FADING LEDs
+  // Initialize the LED pins as outputs
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  
+  // initialize the digital pin as outputs.
+  pinMode(LedNormal, OUTPUT);
+  
+  // Start serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Read the state of the PUSHBUTTON
+  buttonState = digitalRead(buttonPin);
+  
+  // Check if button state changed from LOW to HIGH (button press detected)
+  if (buttonState == HIGH && lastButtonState == LOW) {
+    // Toggle the LED state
+    if (ledState == LOW) {
+      ledState = HIGH;
+      Serial.println("Turning LED ON");
+    } else {
+      ledState = LOW;
+      Serial.println("Turning LED OFF");
+    }
+    
+    // Update the LED
+    digitalWrite(ledPin, ledState);
+    
+    // Simple debounce delay
+    delay(50);
+  }
+  
+  // Save current button state for next loop
+  lastButtonState = buttonState;
+  
+  // Blinking LED logic (non-blocking)
+  unsigned long currentMillis = millis();
+  
+  if (currentMillis - previousMillis >= interval) {
+    // save the last time LED blinked
+    previousMillis = currentMillis;
+    
+    // if the LED is off turn it on and vice-versa
+    if (blinkState == LOW) {
+      blinkState = HIGH;
+    } else {
+      blinkState = LOW;
+    }
+    
+    // Turn LED 1 ON/OFF
+    digitalWrite(LedNormal, blinkState);
+  }
+  
+  // Set the brightness of red and green FADING LEDs
+  analogWrite(redPin, brightness);
+  analogWrite(greenPin, brightness1);
+  // Blue LED stays off
+  analogWrite(bluePin, 0);
+  
+  // Change the brightness for next time through the loop
+  brightness = brightness + fadeAmount;
+  brightness1 = brightness1 + fadeAmount1;
+  
+  // Print out the brightness values
+  Serial.print("Red: ");
+  Serial.print(brightness);
+  Serial.print(" | Green: ");
+  Serial.println(brightness1);
+  
+  // Reverse the direction of fading at the ends of the fade
+  if (brightness <= 0 || brightness >= 255) {
+    fadeAmount = -fadeAmount;
+  }
+  
+  if (brightness1 <= 0 || brightness1 >= 255) {
+    fadeAmount1 = -fadeAmount1;
+  }
+  
+  // Wait for 30 milliseconds to see the dimming effect
+  delay(30);
+}
+    </code></pre>
+  </div>
+
+<div class="full-width-block">
+  <h2>Circuit Operation</h2>
+  <img src="A2_circuit's_operation.gif" alt="Circuit Operation" />
+  <p class="caption">
+    This gif shows the completed circuit and how to play with it.
+  </p>
+</div>
+
+<div class="full-width-block">
+  <h2>Additional Questions</h2>
+</div>
+
+<div class="content-row">
+  <!-- Left column -->
+  <div class="content-block">
+    <h2>Question 1</h2>
+    <img src="Q1_voltage.jpg" alt="voltage-time graph" />
+    <p class="caption">
+      As the LED voltage drop is 2V, while an LED is ON, 
+      the voltage across it stays constant at 2V. 
+      And since this is a parallel circuit, each LED operates independently.
+    </p>
+  </div>
+
+  <!-- Right column -->
+  <div class="content-block">
+    <h2>Question 2</h2>
+    <p class="body">
+      The Arduino has 14 pins (0-13), so up to 14 LEDs can be blinked independently.
+      With the recommended current per pin is 20mA,
+      14 pins will bring 20*14=280mA. 
+      But since the safe limit of the current for the whole Arduino board is 200mA,
+      we should limit the current for each branch and make the current draw under 200mA. 
+    </p>
+  </div>
+</div> 
+
+<div class="full-width-block">
+  <h2>Question 3</h2>
+  <p class="body">
+    I don't think there is a delay time that is fast enough to blink LEDs until no longer can tell that they are blinking.
+    I have tried to adjust the delay time as short as 0.00000000001 ms, but I could still see the blinking.
+  </p>
+  </div>
+
+<div class="full-width-block">
+  <h2>Question 4</h2>
+  <p class="body">
+    ChatGPT was used to help with content arrangement on the website.
+    I referenced to the code provided by ChatGPT to arrange the "content block"
+    for Schematic and Resistance Calculation, to make them side by side
+    rather than up and down placed.
+    The CSS code for two-column content from ChatGPT was used.
+    For reflection, I researched and learnt the defined constent like "align-items" 
+    and "displace." And in the Additional Question section, I tried to write the 
+    code my self to arrange answers to Q1 and Q2 side by side.
+    <br><br>
+    I learnt more about the function "div" and "class."
+    And the codes from ChatGPT was also referenced for the continuing full-width blocks.
+    I edited and arranged the codes carefully to make the strcutre correct,
+    which I have moved the full-width-blcok outside the previous content.
+    And with the graphs attached in a single column, ChatGPT helped me write the codes
+    to limit the width of specific image.
+    I also reflected by learning different methods to make images smaller.
+    And I found out the image will be centered automatically after the size change,
+    so I used ChatGPT to debug and make the images left-aligned again with CSS codes.
+    I also used ChatGPT to make the code snippet:
+    On the HTML, I referred to the codes for adding a firmware section.
+    I wrote the CSS part myself to make the font smaller and different background color. 
+    <br><br>
+    And for the Additional Questions,
+    when answering Question 1, I used ChatGPT to differentiate the difference between
+    digitalWrite() and analogWrite().
+    I learnt the concept about PWM-capable pin.
+    Most importantly, I learnt that even with analogWrite(), the pin is still digital,
+    so it does not have analog voltage.
+    But I still need to deepen my understanding towards the digital pins and PWM pins.
+  </p>
+  </div>
   </body>
 </html>
