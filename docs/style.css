@@ -124,6 +124,16 @@ h2 {
   display: block;
 }
 
+.image-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.image-row img {
+  width: 50%;
+  height: auto;
+}
+
 /* make the code look like a code snippet */
 pre {
   background: #f4f4f4;

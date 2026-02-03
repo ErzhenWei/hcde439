@@ -18,50 +18,57 @@
       </p>
     </div>
 
+    <h2>Schematic</h2>
+
     <div class="content-row">
       <!-- Left column -->
       <div class="content-block">
-        <h2>Schematic</h2>
         <h3>Toggle Button Schematic</h3>
         <img src="Toggle Button Schematic.jpg" alt="Toggle Button Schematic" />
-        <p class="caption">
-          This schematic shows the wiring for four LEDs connected to the Arduino.
-          To ensure each of 4 LEDs be able to blink independently, I used parallel circuit.
-        </p>
       </div>
   
       <!-- Middle column -->
       <div class="content-block">
         <h3>Fading LED Schematic</h3>
         <img src="Fading LED Schematic.jpg" alt="Fading LED Schematic" />
-        <p class="caption">
-          With the recommended current of 40 mA for all four colors of LEDs,
-          I calculated the minimum resistance needed, which is 250 Ohm.
-          To keep the clarity of the circuit, I used the 330 Ohm's resistants
-          for each parallel branch.
-        </p>
       </div>
 
       <!-- Right column -->
       <div class="content-block">
-        <h3>Normal Blinking LED Schematic</h3>
-        <img src="Normal Blinking LED Schematic.jpg" alt="Normal Blinking LED Schematic" />
+        <h3>Normal LED Schematic</h3>
+        <img src="Normal LED Schematic.jpg" alt="Normal Blinking LED Schematic" style="max-height: 400px; width: auto;" />
         <p class="caption">
-          With the recommended current of 40 mA for all four colors of LEDs,
-          I calculated the minimum resistance needed, which is 250 Ohm.
-          To keep the clarity of the circuit, I used the 330 Ohm's resistants
-          for each parallel branch.
+          I was intended to make a blinking LED from A1 as the third LED,
+          but it seems if I included the "delay(1ooo)" in the code,
+          toggle button will not respond and RGB LED will be frozen.
+          So I just replaced it with a standard LED that does not blink,
+          which actually became useful to detect general connection issues.
         </p>
       </div>
     </div>
 
   <div class="full-width-block">
-    <h2>Circuit</h2>
-    <img src="circuit_A2_1.jpg" alt="Final breadboard circuit" />
-    <img src="circuit_A2_2.jpg"/>
+    <h2>Resistance Calculation</h2>
+    <div class="image-row">
+    <img src="Calculation for Normal LEDs.jpg" alt="Calculation for Normal LEDs" />
+    <img src="Calculation for Pull-down Resistance.jpg" alt="Calculation for Pull-down Resistance"/>
+    </div>
     <p class="caption">
-      These images shows the completed breadboard circuit with all three LEDs wired
-      according to the schematic and resistor calculations.
+      The calculations for the normal resistance in the circuits show that a minimum of 150 ohm
+      is needed to keep LEDs safe; for clarity, I used 220 ohm resistance.
+      And for the pull-down resistance, it aims to make the current as small as possible to reduce
+      current waste, so I used the 10k ohm resistance.
+    </p>
+  </div>
+
+  <div class="full-width-block">
+    <h2>Circuit</h2>
+    <div class="image-row">
+    <img src="circuit_A2.jpg" alt="Final breadboard circuit" />
+    </div>
+    <p class="caption">
+      The image shows the completed breadboard circuit with all three LEDs wired
+      according to the schematic and resistance calculations.
     </p>
   </div>
 
@@ -82,9 +89,6 @@ const int redPin = 9;
 const int greenPin = 10;
 // Blue LED pin
 const int bluePin = 11;
-
-// Assign the normal LED to its digital pin
-int LedNormal = 8;
 
 // Variables (for PUSHBUTTON) will change:
 // variable for reading the pushbutton status
@@ -126,9 +130,6 @@ void setup() {
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
   
-  // initialize the digital pin as outputs.
-  pinMode(LedNormal, OUTPUT);
-  
   // Start serial communication
   Serial.begin(9600);
 }
@@ -157,24 +158,6 @@ void loop() {
   
   // Save current button state for next loop
   lastButtonState = buttonState;
-  
-  // Blinking LED logic (non-blocking)
-  unsigned long currentMillis = millis();
-  
-  if (currentMillis - previousMillis >= interval) {
-    // save the last time LED blinked
-    previousMillis = currentMillis;
-    
-    // if the LED is off turn it on and vice-versa
-    if (blinkState == LOW) {
-      blinkState = HIGH;
-    } else {
-      blinkState = LOW;
-    }
-    
-    // Turn LED 1 ON/OFF
-    digitalWrite(LedNormal, blinkState);
-  }
   
   // Set the brightness of red and green FADING LEDs
   analogWrite(redPin, brightness);
@@ -212,6 +195,10 @@ void loop() {
   <img src="A2_circuit's_operation.gif" alt="Circuit Operation" />
   <p class="caption">
     This gif shows the completed circuit and how to play with it.
+    While the color of fading LED is not as obvious,
+    by naked eye, I could see the red and green lights fading;
+    with an intermediate stage of yellow light;
+    no blue light is shown.
   </p>
 </div>
 
@@ -223,68 +210,44 @@ void loop() {
   <!-- Left column -->
   <div class="content-block">
     <h2>Question 1</h2>
-    <img src="Q1_voltage.jpg" alt="voltage-time graph" />
-    <p class="caption">
-      As the LED voltage drop is 2V, while an LED is ON, 
-      the voltage across it stays constant at 2V. 
-      And since this is a parallel circuit, each LED operates independently.
-    </p>
+    <img src="A2_Q1.jpg" alt="voltage-time graph" />
   </div>
 
   <!-- Right column -->
   <div class="content-block">
     <h2>Question 2</h2>
-    <p class="body">
-      The Arduino has 14 pins (0-13), so up to 14 LEDs can be blinked independently.
-      With the recommended current per pin is 20mA,
-      14 pins will bring 20*14=280mA. 
-      But since the safe limit of the current for the whole Arduino board is 200mA,
-      we should limit the current for each branch and make the current draw under 200mA. 
-    </p>
+    <img src="A2_Q2.jpg" alt="the calculation process for Question 2" />
   </div>
 </div> 
 
 <div class="full-width-block">
   <h2>Question 3</h2>
   <p class="body">
-    I don't think there is a delay time that is fast enough to blink LEDs until no longer can tell that they are blinking.
-    I have tried to adjust the delay time as short as 0.00000000001 ms, but I could still see the blinking.
-  </p>
+    The voltage around the normal green LED is 2.97V, which is close to the theoretical forward voltage of 3.0V.
+    For the button red LED, when it's off, it's 0V, 
+    and when it's on, it's 2.0V, which matches the theoretical forward voltage as well.
+    For the RGB LED, the blue LED is always 0V. 
+    The leg for red-color is 0-1.8V, which is also close to the theoretical forward voltage, 
+    and it varies because of the PWM fading effect. For the leg of green-color, 
+    however, I got the varying value of 0-2.3V, and the reason for its drifting from the theoretical value of 2.9-3.2V 
+    might be the PWM fading averaging effect.
   </div>
 
 <div class="full-width-block">
   <h2>Question 4</h2>
   <p class="body">
-    ChatGPT was used to help with content arrangement on the website.
-    I referenced to the code provided by ChatGPT to arrange the "content block"
-    for Schematic and Resistance Calculation, to make them side by side
-    rather than up and down placed.
-    The CSS code for two-column content from ChatGPT was used.
-    For reflection, I researched and learnt the defined constent like "align-items" 
-    and "displace." And in the Additional Question section, I tried to write the 
-    code my self to arrange answers to Q1 and Q2 side by side.
-    <br><br>
-    I learnt more about the function "div" and "class."
-    And the codes from ChatGPT was also referenced for the continuing full-width blocks.
-    I edited and arranged the codes carefully to make the strcutre correct,
-    which I have moved the full-width-blcok outside the previous content.
-    And with the graphs attached in a single column, ChatGPT helped me write the codes
-    to limit the width of specific image.
-    I also reflected by learning different methods to make images smaller.
-    And I found out the image will be centered automatically after the size change,
-    so I used ChatGPT to debug and make the images left-aligned again with CSS codes.
-    I also used ChatGPT to make the code snippet:
-    On the HTML, I referred to the codes for adding a firmware section.
-    I wrote the CSS part myself to make the font smaller and different background color. 
-    <br><br>
-    And for the Additional Questions,
-    when answering Question 1, I used ChatGPT to differentiate the difference between
-    digitalWrite() and analogWrite().
-    I learnt the concept about PWM-capable pin.
-    Most importantly, I learnt that even with analogWrite(), the pin is still digital,
-    so it does not have analog voltage.
-    But I still need to deepen my understanding towards the digital pins and PWM pins.
+    ChatGPT was used to assist with partial writing and debugging of the Arduino code. 
+    I wrote the initial version of the code, but some LEDs were not functioning correctly. 
+    I attempted to diagnose the issue by measuring the voltage around each LED; 
+    however, I did not manage to get a clear solution. 
+    I then described the problem and pasted the codes to the AI and 
+    debugged the code based on its suggestions. 
+    For the reflection, I have attached images of the my coding analysis notes that including my debugging process.
   </p>
+  <div class="image-row">
+  <img src="A2_reflection_1.jpg" alt="reflection for A2_1" />
+  <img src="A2_reflection_2.jpg" alt="reflection for A2_2" />
+  <div>
   </div>
   </body>
 </html>
