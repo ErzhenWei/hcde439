@@ -139,3 +139,8 @@ pre {
   background: #f4f4f4;
   font-size: 0.8em;
 }
+
+.full-width-block img.full-width-image {
+  width: 100%;
+  max-width: none;
+}
