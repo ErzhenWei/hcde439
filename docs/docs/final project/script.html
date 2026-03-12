@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, maximum-scale=1.0">
+
+<title>Final Project: Talking Snoopy Dog</title>
+
+<link href="../style.css" rel="stylesheet" type="text/css">
+
+<style>
+#face{
+font-size:120px;
+margin-top:30px;
+}
+</style>
+
+</head>
+<body>
+<h2>Click a mood to change Snoopy's color</h2>
+
+<!-- Connect Arduino button -->
+<button id="connect">Connect Arduino</button>
+<!-- When clicked, JavaScript will open the WebSerial connection -->
+
+<br><br>
+
+<!-- Mood buttons -->
+<button onclick="sendMood('HAPPY')">Happy</button>
+<!-- Sends HAPPY to Arduino -->
+
+<button onclick="sendMood('SAD')">Sad</button>
+<!-- Sends SAD to Arduino -->
+
+<button onclick="sendMood('ANGRY')">Angry</button>
+<!-- Sends ANGRY to Arduino -->
+
+<button onclick="sendMood('CALM')">Calm</button>
+<!-- Sends CALM to Arduino -->
+
+<!-- Snoopy mood visual -->
+<div id="face">😢</div>
+<!-- This emoji represents Snoopy's current mood -->
+<!-- Default is sad -->
+
+<script>
+
+/*
+Emoji Display Controller
+
+This section changes the emoji when moods change.
+The Arduino will send mood text through Serial.
+*/
+
+let port;
+let reader;
+
+/* Connect button event */
+document.getElementById("connect").addEventListener("click", connect);
+
+/*connect()*/
+async function connect(){
+  /* Opens device selection window */
+  port = await navigator.serial.requestPort();
+  /* Opens the serial communication */
+  await port.open({ baudRate:9600 });
+  /* Creates reader to receive data */
+  reader = port.readable.getReader();
+  /* Starts listening for messages */
+  readSerial();
+}
+
+/*readSerial()*/
+async function readSerial(){
+  if(!port) { 
+    alert("Please connect to Arduino first!"); 
+    return; 
+  }
+
+  const writer = port.writable.getWriter();
+  const encoder = new TextEncoder();
+  await writer.write(encoder.encode(mood + "\n"));
+  writer.releaseLock();
+
+  // Update emoji locally (optional)
+  updateFace(mood);
+  }
+
+/*updateFace(mood)*/
+function updateFace(mood){
+  /* Access the emoji element */
+  const face = document.getElementById("face");
+  /* Happy mood */
+  if(mood.includes("HAPPY")) face.textContent = "😊";
+  /* Sad mood */
+  else if(mood.includes("SAD")) face.textContent = "😢";
+  /* Angry mood */
+  else if(mood.includes("ANGRY")) face.textContent = "😡";
+  /* Calm mood */
+  else if(mood.includes("CALM")) face.textContent = "😌"; 
+}
+
+/*sendMood(mood)*/
+async function sendMood(mood){
+  /* Create serial writer */
+  const writer = port.writable.getWriter();
+  /* Converts text to bytes */
+  const encoder = new TextEncoder();
+  /* Send mood command */
+  await writer.write(encoder.encode(mood + "\n"));
+  /* Release serial writer */
+  writer.releaseLock();
+  /* Update emoji */
+  updateFace(mood);
+}
+
+</script>
+
+</body>
+
+</html>
